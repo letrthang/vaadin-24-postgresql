@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaadin-24-postgresql
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vaadin-24-postgresql
+  template:
+    metadata:
+      labels:
+        app: vaadin-24-postgresql
+    spec:
+      containers:
+        - name: vaadin-24-postgresql
+          image: vaadin-24-postgresql:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaadin-24-postgresql-balancer
+spec:
+  selector:
+    app: vaadin-24-postgresql
+  ports:
+    - protocol: TCP
+      port: 8000 # The port to expose to the outside
+      targetPort: 8080 # The port the application is running on in the pods
+  type: LoadBalancer
+  sessionAffinity: ClientIP
